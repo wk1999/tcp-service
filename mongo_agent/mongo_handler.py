@@ -2,6 +2,9 @@
 def name():
     return "mongo_handler"
 
+def on_start_session(session):
+    pass
+
 def on_close_session(session):
     pass
 

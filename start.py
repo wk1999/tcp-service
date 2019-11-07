@@ -6,9 +6,10 @@ import json
 def usage():
     print '''
 Usage:
-    -h
-    -l
-    -e
+    -h      print this help
+    -l      list all running services
+    -e <s>  end service <s>
+    -d <s>  start service <s>
     '''
 
 def debug_args(args, desc = 'args'):

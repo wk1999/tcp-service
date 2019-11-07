@@ -32,9 +32,6 @@ class tcp_session_svr:
         if (self._state_guarding == self._state):
             if self._guarder.validated_ok():
                 self._user = self._guarder.user()
-                if self._user['cli']:
-                    self._session.set_cli()
-                    self._session.send(self._session.prompt())
                 self._session.set_user(self._user['username'])
                 self._framer.install_handlers(self._user['handlers'])
                 self._state = self._state_running

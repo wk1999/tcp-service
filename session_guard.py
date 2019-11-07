@@ -9,7 +9,6 @@ class guard:
         self._user = None
         self._users = userdata
         self._retry = 0
-        session.send("Username:")
     def validated_failed(self):
         return self._state_failed == self._state
     def validated_ok(self):
@@ -47,6 +46,8 @@ class guard:
         else:
             session.send("%% BUG...\n")
         return True
+    def on_start_session(self, session):
+        session.send("Username:")
     def on_close_session(self, session):
         pass
     def name(self):

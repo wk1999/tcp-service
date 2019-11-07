@@ -3,30 +3,39 @@ class framer:
     def __init__(self, session, is_frame_api):
         self._frame_buf = []
         self._handlers = []
+        self._last_char = '\0'
         self._session = session
         self._is_frame_api = is_frame_api
     def install_handlers(self, handlers):
         for handler in self._handlers:
             handler.on_close_session(self._session)
         self._handlers = handlers
+        for handler in handlers:
+            handler.on_start_session(self._session)
     def recv(self, data):
         #d = data.decode()
         for c in data:
             #if self._is_frame_api(c, frame, offset...):
             if c == '\n' or c == '\r':
+                if (c == '\n' and self._last_char == '\r') or (c == '\r' and self._last_char == '\n'):
+                    #do nothing
+                    self._last_char = '\0'
+                    continue
                 frame = "".join(self._frame_buf).strip()
                 self._frame_buf = []
-                if len(frame) > 0:
-                    print("received frame:", frame)
-                    handled = False
-                    for handler in self._handlers:
-                        if handler.handle(frame, self._session):
-                            handled = True
-                            print("tokens were parsed:", frame,"with handler:",handler.name())
-                            break
-                    if not handled:
-                        self._session.send("% unknown request\n")
-                if self._session.in_cli() and c == '\n':
-                    self._session.send(self._session.prompt())
+                print("received frame:", frame)
+                handled = False
+                for handler in self._handlers:
+                    if handler.handle(frame, self._session):
+                        handled = True
+                        print("tokens were parsed:", frame,"with handler:",handler.name())
+                        break
+                if not handled:
+                    self._session.send("% unknown request\n")
+            elif c == '\x08': #backspace
+                print("BACKSPAC++", self._frame_buf)
+                self._frame_buf.pop()
+                print("BACKSPAC--", self._frame_buf)
             else:
                 self._frame_buf.append(c)
+            self._last_char = c

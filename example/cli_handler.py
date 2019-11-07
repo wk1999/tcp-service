@@ -9,8 +9,13 @@ keywords = [
 __redi = None
 __redi_owner = None
 
+prompt="CLI#"
+
 def name():
     return "cli_handler"
+
+def on_start_session(session):
+    session.send(prompt)
 
 def on_close_session(session):
     global __redi
@@ -21,8 +26,10 @@ def on_close_session(session):
 
 def handle(frame, session):
     tokens = token_parse(frame)
+
     if not tokens:
-        return False
+        session.send(prompt)
+        return True
 
     for token in tokens:
         print("  ",token)
@@ -54,7 +61,7 @@ def handle(frame, session):
         if len(tokens) < 2:
             show_help()
         elif tokens[1] == 'user':
-            session.send('user is %s\n' % session.get_user())
+            session.send('user is %s\r\n' % session.get_user())
         else:
             show_help()
     elif tokens[0] == 'exit':
@@ -64,6 +71,11 @@ def handle(frame, session):
             exit_help()
         else:
             session.exit()
+    else:
+        session.send(prompt)
+        return False
+
+    session.send(prompt)
     return True
 
 def token_parse(frame):
