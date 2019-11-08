@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os, sys, getopt
-import json
-
+import json_map
 
 def usage():
     print '''
@@ -19,34 +18,18 @@ def debug_args(args, desc = 'args'):
         print 'arg' + str(i) + ': ' + arg
         i += 1
     print '******\n'
-
-
-def load_map(file_path):
-    mp = {}
-    if not os.path.exists(file_path):
-        return mp
-
-    with open(file_path, "r") as f:
-        json_str = f.read()
-        mp = json.loads(json_str)
-    return mp
-
-def write_map(mp, file_path):
-    with open(file_path, 'w+') as f:
-        json_str = json.dumps(mp)
-        f.write(json_str)
-
 ###########################
 
 services_file = '/tmp/running_services'
 start_app = "tcp_main.py"
+monitor_app = "service_monitor.py"
 
 def list_running_services():
-    services_map = load_map(services_file)
+    services_map = json_map.load(services_file)
     print services_map
 
 def start_service(service_dir):
-    services_map = load_map(services_file)
+    services_map = json_map.load(services_file)
     if service_dir in services_map:
         print('this service already running')
         return
@@ -62,16 +45,27 @@ def start_service(service_dir):
         print('assert FAILED')
     else:
         services_map[service_dir] = pid
-        write_map(services_map, services_file)
+        json_map.write(services_map, services_file)
+        # lauch monotor app when there is only 1 service running(0->1)
+        if len(services_map) == 1:
+            pid = os.fork()
+            if pid < 0:
+                print("what bugs?")
+            elif pid ==0:
+                cmd = sys.path[0] + "/" + monitor_app
+                os.execl(cmd, monitor_app, services_file)
+                print('assert FAILED')
+            else:
+                pass
 
 def stop_service(service_dir):
-    services_map = load_map(services_file)
+    services_map = json_map.load(services_file)
     if service_dir in services_map:
         cmd = "kill -9 " + str(services_map[service_dir])
         print(cmd)
         os.system(cmd)
         del services_map[service_dir]
-        write_map(services_map, services_file)
+        json_map.write(services_map, services_file)
 
 if __name__ == '__main__':
     try:

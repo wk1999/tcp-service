@@ -21,7 +21,7 @@ class tcp_session_svr:
         self._session = service.create_session(addr, send_api)
         self._framer = tcp_frame.framer(self._session, service.is_frame)
         self._guarder = session_guard.guard(self._session, service.user_data())
-        self._framer.install_handlers([self._guarder])
+        self._framer.install_handler(self._guarder)
         self._last_time = datetime.datetime.now()
     def handle(self, data):
         if (self._state_closed == self._state):
@@ -33,7 +33,7 @@ class tcp_session_svr:
             if self._guarder.validated_ok():
                 self._user = self._guarder.user()
                 self._session.set_user(self._user['username'])
-                self._framer.install_handlers(self._user['handlers'])
+                self._framer.install_handler(self._user['handler'])
                 self._state = self._state_running
             elif self._guarder.validated_failed():
                 self._state = self._state_closed
@@ -58,5 +58,5 @@ class tcp_session_svr:
                 self._state = self._state_closed
     def on_sock_close(self):
         self._state = self._state_closed
-        self._framer.install_handlers([]) # TO destruct handlers
+        self._framer.install_handler(None) # TO destruct handlers
 

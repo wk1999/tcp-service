@@ -28,23 +28,23 @@ class guard:
             else:
                 self._retry += 1
                 if 3 == self._retry:
-                    session.send("% Login failed\n")
+                    session.send("% Login failed\r\n")
                     self._state = self._state_failed
                 else:
                     session.send("Username:")
         elif self._state_guarding_password == self._state:
             if data == self._user['password']:
-                session.send("% Welcome\n")
+                session.send("% Welcome\r\n")
                 self._state = self._state_ok
             else:
                 self._retry += 1
                 if 3 == self._retry:
-                    session.send("% Login failed\n")
+                    session.send("% Login failed\r\n")
                     self._state = self._state_failed
                 else:
                     session.send("Password:")
         else:
-            session.send("%% BUG...\n")
+            session.send("%% BUG...\r\n")
         return True
     def on_start_session(self, session):
         session.send("Username:")

@@ -36,14 +36,14 @@ def handle(frame, session):
 
     if tokens[0] == 'monitor':
         def monitor_help():
-            session.send("% usage: monitor [on|off]\n")
+            session.send("% usage: monitor [on|off]\r\n")
         global __redi
         global __redi_owner
         if len(tokens) != 2:
             monitor_help()
         elif tokens[1] == 'on':
             if __redi:
-                session.send("% already monitored by someone else\n")
+                session.send("% already monitored by someone else\r\n")
             else:
                 __redi = redirector.redirector(session.send)
                 __redi.redirect()
@@ -57,7 +57,7 @@ def handle(frame, session):
             monitor_help()
     elif tokens[0] == 'show':
         def show_help():
-            session.send("% usage: show [user]...to be done\n")
+            session.send("% usage: show [user]...to be done\r\n")
         if len(tokens) < 2:
             show_help()
         elif tokens[1] == 'user':
@@ -66,7 +66,7 @@ def handle(frame, session):
             show_help()
     elif tokens[0] == 'exit':
         def exit_help():
-            session.send('% usage: exit\n')
+            session.send('% usage: exit\r\n')
         if len(tokens) != 1:
             exit_help()
         else:
